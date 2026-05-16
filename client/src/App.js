@@ -1,98 +1,90 @@
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+require("dotenv").config();
 
-import Home from './pages/Home';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Dashboard from './pages/Dashboard';
-import Courses from './pages/Courses';
-import AddCourse from './pages/AddCourse';
+const express = require("express");
+const mongoose = require("mongoose");
 
-function App() {
+const app = express();
 
-  const token = localStorage.getItem('token');
+// Middleware
+app.use(express.json());
 
-  const logoutUser = () => {
+// MongoDB Connection
+mongoose.connect(process.env.MONGO_URI)
+.then(() => {
+    console.log("MongoDB Connected");
+})
+.catch((err) => {
+    console.log("MongoDB Error:", err);
+});
 
-    localStorage.removeItem('token');
+// Home Route
+app.get("/", (req, res) => {
+    res.send("CyberRedRabbit Backend Running");
+});
 
-    window.location.href = '/login';
+// Test API Route
+app.get("/api/test", (req, res) => {
+    res.json({
+        success: true,
+        message: "API Working Successfully"
+    });
+});
 
-  };
+// User Schema
+const userSchema = new mongoose.Schema({
+    name: String,
+    email: String
+});
 
-  return (
+// User Model
+const User = mongoose.model("User", userSchema);
 
-    <BrowserRouter>
+// Add User Route
+app.get("/add", async (req, res) => {
+    try {
+        const user = new User({
+            name: "Uthkar",
+            email: "uthkar@test.com"
+        });
 
-      <nav className="bg-black text-white p-4 flex gap-5 items-center">
+        await user.save();
 
-        <Link to="/">Home</Link>
+        res.json({
+            success: true,
+            message: "User Added Successfully",
+            user
+        });
 
-        <Link to="/courses">Courses</Link>
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
 
-        {!token && (
-          <>
-            <Link to="/login">Login</Link>
+// Get All Users Route
+app.get("/users", async (req, res) => {
+    try {
+        const users = await User.find();
 
-            <Link to="/register">Register</Link>
-          </>
-        )}
+        res.json({
+            success: true,
+            users
+        });
 
-        {token && (
-          <>
-            <Link to="/dashboard">Dashboard</Link>
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
 
-            <Link to="/add-course">
-              Add Course
-            </Link>
+// Port
+const PORT = process.env.PORT || 5000;
 
-            <button
-              onClick={logoutUser}
-              className="bg-red-500 px-3 py-1 rounded"
-            >
-              Logout
-            </button>
-          </>
-        )}
-
-      </nav>
-
-      <Routes>
-
-        <Route
-          path="/"
-          element={<Home />}
-        />
-
-        <Route
-          path="/courses"
-          element={<Courses />}
-        />
-
-        <Route
-          path="/login"
-          element={<Login />}
-        />
-
-        <Route
-          path="/register"
-          element={<Register />}
-        />
-
-        <Route
-          path="/dashboard"
-          element={<Dashboard />}
-        />
-
-        <Route
-          path="/add-course"
-          element={<AddCourse />}
-        />
-
-      </Routes>
-
-    </BrowserRouter>
-
-  );
-}
-
-export default App;
+// Start Server
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
