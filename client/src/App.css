@@ -1,0 +1,38 @@
+body {
+  margin: 0;
+  background: #0d0d0d;
+  color: white;
+  font-family: Arial;
+}
+
+.app {
+  padding: 40px;
+}
+
+h1 {
+  color: orangered;
+  font-size: 60px;
+}
+
+.course-container {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-top: 40px;
+}
+
+.card {
+  background: linear-gradient(135deg, #1a1a1a, #1e3c72);
+  padding: 25px;
+  width: 300px;
+  border-radius: 15px;
+}
+
+button {
+  background: orangered;
+  border: none;
+  padding: 12px 20px;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+}
