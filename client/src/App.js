@@ -1,76 +1,83 @@
-import React from "react";
+import React, { useState } from "react";
+import API from "./api";
 
 function App() {
+  const [file, setFile] = useState(null);
+
+  const [message, setMessage] =
+    useState("");
+
+  const uploadFile = async () => {
+    if (!file) {
+      alert("Please select a file");
+
+      return;
+    }
+
+    const formData = new FormData();
+
+    formData.append("file", file);
+
+    try {
+      const res = await API.post(
+        "/api/upload",
+        formData
+      );
+
+      setMessage(res.data.message);
+    } catch (error) {
+      console.log(error);
+
+      setMessage("Upload failed ❌");
+    }
+  };
+
   return (
     <div
       style={{
         minHeight: "100vh",
         backgroundColor: "#0f172a",
         color: "white",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
         fontFamily: "Arial",
-        padding: "40px",
       }}
     >
-      <h1 style={{ fontSize: "42px" }}>
-        CyberRedRabbit 🚀
+      <h1>
+        CyberRedRabbit 🔐
       </h1>
 
-      <p style={{ fontSize: "20px", marginTop: "10px" }}>
-        Secure Cybersecurity Dashboard
+      <p>
+        AES-256 Secure File
+        Encryption
       </p>
 
-      <div
+      <input
+        type="file"
+        onChange={(e) =>
+          setFile(e.target.files[0])
+        }
         style={{
-          marginTop: "40px",
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
-          gap: "20px",
+          marginTop: "20px",
+        }}
+      />
+
+      <button
+        onClick={uploadFile}
+        style={{
+          marginTop: "20px",
+          padding: "10px 20px",
+          cursor: "pointer",
         }}
       >
-        <div
-          style={{
-            background: "#1e293b",
-            padding: "20px",
-            borderRadius: "12px",
-          }}
-        >
-          <h2>🔐 File Encryption</h2>
-          <p>AES-256 secure file protection module.</p>
-        </div>
+        Upload & Encrypt
+      </button>
 
-        <div
-          style={{
-            background: "#1e293b",
-            padding: "20px",
-            borderRadius: "12px",
-          }}
-        >
-          <h2>🛡 Threat Monitoring</h2>
-          <p>Real-time suspicious activity tracking.</p>
-        </div>
-
-        <div
-          style={{
-            background: "#1e293b",
-            padding: "20px",
-            borderRadius: "12px",
-          }}
-        >
-          <h2>🤖 AI Detection</h2>
-          <p>AI-powered anomaly detection engine.</p>
-        </div>
-
-        <div
-          style={{
-            background: "#1e293b",
-            padding: "20px",
-            borderRadius: "12px",
-          }}
-        >
-          <h2>📂 Secure Storage</h2>
-          <p>Encrypted cloud file storage system.</p>
-        </div>
-      </div>
+      <p style={{ marginTop: "20px" }}>
+        {message}
+      </p>
     </div>
   );
 }
