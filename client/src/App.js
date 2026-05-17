@@ -1,90 +1,40 @@
-require("dotenv").config();
+import React, { useEffect, useState } from "react";
+import API from "./api";
 
-const express = require("express");
-const mongoose = require("mongoose");
+function App() {
+  const [message, setMessage] = useState("Connecting to backend...");
 
-const app = express();
+  useEffect(() => {
+    API.get("/api/test")
+      .then((res) => {
+        setMessage(res.data.message);
+      })
+      .catch((err) => {
+        console.error(err);
+        setMessage("Backend Connection Failed ❌");
+      });
+  }, []);
 
-// Middleware
-app.use(express.json());
+  return (
+    <div
+      style={{
+        height: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        flexDirection: "column",
+        backgroundColor: "#0f172a",
+        color: "white",
+        fontFamily: "Arial",
+      }}
+    >
+      <h1 style={{ fontSize: "40px", marginBottom: "20px" }}>
+        CyberRedRabbit 🚀
+      </h1>
 
-// MongoDB Connection
-mongoose.connect(process.env.MONGO_URI)
-.then(() => {
-    console.log("MongoDB Connected");
-})
-.catch((err) => {
-    console.log("MongoDB Error:", err);
-});
+      <p style={{ fontSize: "24px" }}>{message}</p>
+    </div>
+  );
+}
 
-// Home Route
-app.get("/", (req, res) => {
-    res.send("CyberRedRabbit Backend Running");
-});
-
-// Test API Route
-app.get("/api/test", (req, res) => {
-    res.json({
-        success: true,
-        message: "API Working Successfully"
-    });
-});
-
-// User Schema
-const userSchema = new mongoose.Schema({
-    name: String,
-    email: String
-});
-
-// User Model
-const User = mongoose.model("User", userSchema);
-
-// Add User Route
-app.get("/add", async (req, res) => {
-    try {
-        const user = new User({
-            name: "Uthkar",
-            email: "uthkar@test.com"
-        });
-
-        await user.save();
-
-        res.json({
-            success: true,
-            message: "User Added Successfully",
-            user
-        });
-
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            error: error.message
-        });
-    }
-});
-
-// Get All Users Route
-app.get("/users", async (req, res) => {
-    try {
-        const users = await User.find();
-
-        res.json({
-            success: true,
-            users
-        });
-
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            error: error.message
-        });
-    }
-});
-
-// Port
-const PORT = process.env.PORT || 5000;
-
-// Start Server
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+export default App;
